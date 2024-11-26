@@ -5,6 +5,8 @@ import torch.nn as nn
 BART_HIDDEN_SIZE = 768
 LINEAR_HIDDEN_SIZE = 2000
 
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
 class ValueEstimation(nn.Module):
     def __init__(self):
         super().__init__()
@@ -26,7 +28,7 @@ class ValueEstimation(nn.Module):
 
     def forward(self, text):
         inputs = self.tokenizer(text, return_tensors="pt", padding=True)
-        outputs = self.model(**inputs)
+        outputs = self.model(input_ids=inputs.input_ids.to(device), attention_mask=inputs.attention_mask.to(device))
         outputs = self.valueEstimationHead(outputs.last_hidden_state.mean(1))
 
         return outputs.squeeze(1)
